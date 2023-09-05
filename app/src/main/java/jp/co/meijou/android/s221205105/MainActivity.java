@@ -16,8 +16,14 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         prefDataStore = PrefDataStore.getInstance(this);
+        
+        prefDataStore.getString("name")
+                .ifPresent(name -> binding.textView.setText(name));
 
-
+        binding.changebutton.setOnClickListener(view -> {
+            var text = binding.editTextText.getText().toString();
+            binding.textView.setText(text);
+        });
 
 
         binding.saveButton.setOnClickListener(view -> {
