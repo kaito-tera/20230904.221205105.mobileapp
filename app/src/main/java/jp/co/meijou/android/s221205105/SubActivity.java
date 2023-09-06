@@ -22,6 +22,18 @@ public class SubActivity extends AppCompatActivity {
         Optional.ofNullable(getIntent().getStringExtra("text"))
                 .ifPresent(text -> binding.textView2.setText(text));
 
+        binding.obutton.setOnClickListener(view -> {
+            var intent = new Intent();
+            intent.putExtra("ret", "OK");
+            setResult(RESULT_OK, intent);
+            finish();
+        });
+
+        binding.cbutton.setOnClickListener(view -> {
+            setResult(RESULT_CANCELED);
+            finish();
+        });
+
 
     }
 }
