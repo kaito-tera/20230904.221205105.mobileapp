@@ -3,6 +3,8 @@ package jp.co.meijou.android.s221205105;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 
 import com.squareup.moshi.JsonAdapter;
@@ -36,10 +38,28 @@ public class NetworkActivity extends AppCompatActivity {
         binding = ActivityNetworkBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        var request = new Request.Builder() //アクセス先
-                .url("https://gist.stoic.jp/okhttp.json")
-                .build();
+        //var request = new Request.Builder() //アクセス先
+          //      .url("https://placehold.jp/350x350.png")
+          //      .build();
 
+        binding.button.setOnClickListener(view -> {
+           var text = binding.editText.getText() .toString();
+            var url = Uri.parse("https://placehold.jp/500x500.png")
+                    .buildUpon()
+                    .appendQueryParameter("text", text)
+                    .build()
+                    .toString();
+            // 画像の取得開始
+            getImage(url);
+        });
+        getImage("https://placehold.jp/500x500.png");
+
+    }
+    private void getImage(String url) {
+        // リクエスト先に画像URLを指定
+        var request = new Request.Builder()
+                .url(url)
+                .build();
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -48,15 +68,9 @@ public class NetworkActivity extends AppCompatActivity {
 
             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException{
                 //通信に成功したとき呼び出し
-                var gist = gistJsonAdapter.fromJson(response.body().source());
+                var bitmap = BitmapFactory.decodeStream(response.body().byteStream());
 
-                //中身の取りだし
-                Optional.ofNullable(gist)
-                        .map(g -> g.files.get("OkHttp.txt")) //filesの中からOkHttp.txtを取り出し
-                        .ifPresent(gistFile -> {
-                            //UIスレッド上で実行　ほかで更新するとクラッシュ
-                            runOnUiThread(() -> binding.textcontent.setText(gistFile.content));
-                        });
+                runOnUiThread(() -> binding.imageView.setImageBitmap(bitmap));
             }
         });
     }
